@@ -1,3 +1,4 @@
+
 Description: >
   Create ECS service and cluster resources for Drupal application.
 
@@ -15,6 +16,9 @@ Parameters:
   InstanceType:
     Type: String
     Default: t2.medium
+  KeyName:
+    Description: Name of the private key for EC2 access via SSH
+    Type: String
 
 Mappings:
   AWSRegionToAMI:
