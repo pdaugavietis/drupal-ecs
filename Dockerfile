@@ -67,6 +67,6 @@ RUN set -eux; \
   rm drupal.tar.gz; \
   chown -R www-data:www-data sites modules themes
 
-RUN echo "Hello World" > /hello.txt
+RUN echo "Hello World Again" > /hello.txt
 
 # vim:set ft=dockerfile:
