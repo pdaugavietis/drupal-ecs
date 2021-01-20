@@ -109,8 +109,48 @@ Resources:
               ContainerPath: /myapp
           PortMappings:
             - ContainerPort: 80
+          Links:
+            - "db"
+            - "memcached"
+          Environment:    
+            - Name: MYSQL_ROOT_PASSWORD              
+              Value: root_password
+            - Name: MYSQL_DATABASE
+              Value: drupal       
+            - Name: MYSQL_USER
+              Value: drupal_database_user
+            - Name: MYSQL_PASSWORD
+              Value: drupal_database_password
+        - Name: db
+          Image: mysql
+          Essential: true
+          Memory: 512
+          MountPoints:
+            - SourceVolume: myapp
+              ContainerPath: /myapp
+          PortMappings:
+            - ContainerPort: 3306
+          Environment:
+            - Name: MYSQL_ROOT_PASSWORD
+              Value: root_password    
+            - Name: MYSQL_DATABASE              
+              Value: drupal
+            - Name: MYSQL_USER
+              Value: drupal_database_user
+            - Name: MYSQL_PASSWORD
+              Value: drupal_database_password
+        - Name: memcached
+          Image: memcached
+          Essential: true
+          Memory: 512
+          LogDriver: awslogs
+          PortMappings:
+            - ContainerPort: 11211
       Volumes:
-        - Name: myapp
+        - 
+          Host: 
+            SourcePath: "/opt/drupal_ref_repo"
+          Name: myapp
 
   SecurityGroupALB:
     Type: "AWS::EC2::SecurityGroup"
@@ -235,7 +275,7 @@ Resources:
                   - /etc/cfn/hooks.d/cfn-auto-reloader.conf
     Properties:
       ImageId: !FindInMap [ AWSRegionToAMI, !Ref "AWS::Region", AMI ]
-      KeyName: key-us-east-1
+      KeyName: !Ref KeyName
       InstanceType: !Ref InstanceType
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroups:
@@ -243,7 +283,15 @@ Resources:
       UserData:
         "Fn::Base64": !Sub |
           #!/bin/bash
-          yum install -y aws-cfn-bootstrap
+          yum install -y aws-cfn-bootstrap git tar gunzip
+          curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
+          pip install awscli
+          aws s3 cp s3://avst-estee-poc/drupal.tar.gz .
+          mkdir /opt/drupal_ref_repo && mv drupal.tar.gz /opt/drupal_ref_repo/drupal.tar.gz
+          tar -xvfz /opt/drupal_ref_repo/drupal.tar.gz
+          aws s3 cp s3://avst-estee-poc/clinique-master.sql.gz .
+          mkdir /opt/drupal_db && mv clinique-master.sql.gz /opt/drupal_db/clinique-master.sql.gz
+          gunzip /opt/drupal/clinique-master.sql.gz
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
   myDNS:
