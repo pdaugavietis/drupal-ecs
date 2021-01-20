@@ -150,7 +150,7 @@ Resources:
           Image: memcached
           Essential: true
           Memory: 512
-          LogDriver: awslogs
+          # LogDriver: awslogs
           PortMappings:
             - ContainerPort: 11211
       Volumes:
@@ -291,14 +291,6 @@ Resources:
         "Fn::Base64": !Sub |
           #!/bin/bash
           yum install -y aws-cfn-bootstrap git tar gunzip
-          curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
-          pip install awscli
-          aws s3 cp s3://avst-estee-poc/drupal.tar.gz .
-          mkdir /opt/drupal_ref_repo && mv drupal.tar.gz /opt/drupal_ref_repo/drupal.tar.gz
-          tar -xvfz /opt/drupal_ref_repo/drupal.tar.gz
-          aws s3 cp s3://avst-estee-poc/clinique-master.sql.gz .
-          mkdir /opt/drupal_db && mv clinique-master.sql.gz /opt/drupal_db/clinique-master.sql.gz
-          gunzip /opt/drupal/clinique-master.sql.gz
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
 
