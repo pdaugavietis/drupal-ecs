@@ -286,10 +286,10 @@ Resources:
           yum install -y aws-cfn-bootstrap git tar gunzip
           curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
           pip install awscli
-          aws s3 cp s3://elc-drupal-code/drupal_release.tgz .
-          mkdir /opt/drupal_ref_repo && mv drupal_release.tgz /opt/drupal_ref_repo/drupal_release.tgz
-          tar -xvfz /opt/drupal_ref_repo/drupal_release.tgz
-          aws s3 cp s3://elc-drupal-code/featuretest-databases/clinique-master.sql.gz .
+          aws s3 cp s3://avst-estee-poc/drupal.tar.gz .
+          mkdir /opt/drupal_ref_repo && mv drupal.tar.gz /opt/drupal_ref_repo/drupal.tar.gz
+          tar -xvfz /opt/drupal_ref_repo/drupal.tar.gz
+          aws s3 cp s3://avst-estee-poc/clinique-master.sql.gz .
           mkdir /opt/drupal_db && mv clinique-master.sql.gz /opt/drupal_db/clinique-master.sql.gz
           gunzip /opt/drupal/clinique-master.sql.gz
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration
