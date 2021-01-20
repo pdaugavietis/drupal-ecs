@@ -6,6 +6,14 @@ Parameters:
   RepositoryName:
     Description: Amazon ECR repository name
     Type: String
+    Default: drupal-ecr-repository
+  RepositoryTag:
+    Description: Amazon ECR repository tag name
+    Type: String
+    Default: latest
+  BaseDNSZone:
+    Type: String
+    Default: pdaugavietis.staff.adaptavist.com
   SharedResourceStack:
     Description: Name of an active CloudFormation stack that contains the shared solution resources, such as the VPC.
     Type: String
@@ -19,11 +27,10 @@ Parameters:
   KeyName:
     Description: Name of the private key for EC2 access via SSH
     Type: String
-
-Mappings:
-  AWSRegionToAMI:
-    us-east-1:
-      AMI: ami-008cae8631db69182
+    Default: drupal-keypair
+  LatestAmiId:
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2"
 
 Resources:
   LoadBalancerListener:
@@ -234,7 +241,7 @@ Resources:
                   - /etc/cfn/cfn-hup.conf
                   - /etc/cfn/hooks.d/cfn-auto-reloader.conf
     Properties:
-      ImageId: !FindInMap [ AWSRegionToAMI, !Ref "AWS::Region", AMI ]
+      ImageId: !Ref LatestAmiId
       KeyName: key-us-east-1
       InstanceType: !Ref InstanceType
       IamInstanceProfile: !Ref InstanceProfile
@@ -246,13 +253,14 @@ Resources:
           yum install -y aws-cfn-bootstrap
           /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
-  myDNS:
+
+  CustomDNSName:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: pdaugavietis.staff.adaptavist.com.
+      HostedZoneName: !Sub ${pdaugavietis.staff.adaptavist.com}.
       Comment: Zone apex alias targeted to myELB LoadBalancer.
       RecordSets:
-      - Name: drupal.pdaugavietis.staff.adaptavist.com.
+      - Name: !Sub drupal.${BaseDNSZone}.
         Type: A
         AliasTarget:
           HostedZoneId: !GetAtt 'LoadBalancer.CanonicalHostedZoneNameID'
