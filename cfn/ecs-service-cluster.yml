@@ -242,7 +242,7 @@ Resources:
                   - /etc/cfn/hooks.d/cfn-auto-reloader.conf
     Properties:
       ImageId: !Ref LatestAmiId
-      KeyName: key-us-east-1
+      KeyName: !Ref KeyName
       InstanceType: !Ref InstanceType
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroups:
@@ -257,13 +257,13 @@ Resources:
   CustomDNSName:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: !Sub ${pdaugavietis.staff.adaptavist.com}.
+      HostedZoneName: !Sub ${BaseDNSZone}.
       Comment: Zone apex alias targeted to myELB LoadBalancer.
       RecordSets:
       - Name: !Sub drupal.${BaseDNSZone}.
         Type: A
         AliasTarget:
-          HostedZoneId: !GetAtt 'LoadBalancer.CanonicalHostedZoneNameID'
+          HostedZoneId: !GetAtt 'LoadBalancer.CanonicalHostedZoneID'
           DNSName: !GetAtt 'LoadBalancer.DNSName'
 
 Outputs:
