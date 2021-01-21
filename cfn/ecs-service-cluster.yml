@@ -13,6 +13,10 @@ Parameters:
   BaseDNSZone:
     Type: String
     Default: pdaugavietis.staff.adaptavist.com
+  Subdomain:
+    Description: Subdomain prefix value for URL
+    Type: String
+    Default: clinique
   SharedResourceStack:
     Description: Name of an active CloudFormation stack that contains the shared solution resources, such as the VPC.
     Type: String
@@ -311,7 +315,7 @@ Resources:
       HostedZoneName: !Sub ${BaseDNSZone}.
       Comment: Zone apex alias targeted to myELB LoadBalancer.
       RecordSets:
-      - Name: !Sub drupal.${BaseDNSZone}.
+      - Name: !Sub ${Subdomain}.${BaseDNSZone}.
         Type: A
         AliasTarget:
           HostedZoneId: !GetAtt 'LoadBalancer.CanonicalHostedZoneID'
