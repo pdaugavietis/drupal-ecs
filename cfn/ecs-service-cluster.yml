@@ -122,7 +122,7 @@ Resources:
           PortMappings:
             - ContainerPort: 80
           Links:
-            - "db"
+            - "mysql"
             - "memcached"
           Environment:    
             - Name: MYSQL_ROOT_PASSWORD              
@@ -133,7 +133,7 @@ Resources:
               Value: drupal_database_user
             - Name: MYSQL_PASSWORD
               Value: drupal_database_password
-        - Name: db
+        - Name: mysql
           Image: mysql
           Essential: true
           Memory: 2048
