@@ -9,7 +9,7 @@ Parameters:
   DrupalRepositoryName:
     Description: Amazon ECR repository name
     Type: String
-    Default: drupal-ecr-repository
+    Default: drupal-ecr-repository-2
   RepositoryTag:
     Description: Amazon ECR repository tag name
     Type: String

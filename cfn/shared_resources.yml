@@ -36,7 +36,7 @@ Parameters:
   DrupalRepositoryName:
     Description: Amazon ECR repository name for ELCO Drupal
     Type: String
-    Default: drupal-ecr-repository
+    Default: drupal-ecr-repository-2
 
   WorkshopName:
     Description: A workshop name that will be prefixed to resource names
