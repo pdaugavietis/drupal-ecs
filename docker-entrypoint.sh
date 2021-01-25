@@ -278,7 +278,7 @@ docker_setup_db() {
     docker_process_sql --database=mysql <<<"CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` ;"
     
     mysql_note "Restoring database ${MYSQL_DATABASE} from ${MYSQL_DATABASE_RESTORE_FILE}"
-    mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < "$MYSQL_DATABASE_RESTORE_FILE"
+    /usr/bin/mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < "$MYSQL_DATABASE_RESTORE_FILE"
   fi
 ​
   if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ]; then

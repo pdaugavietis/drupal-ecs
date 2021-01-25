@@ -125,6 +125,11 @@ Resources:
               ContainerPath: /opt/drupal_ref_repo
           PortMappings:
             - ContainerPort: 80
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref CloudWatchLogsGroup
+              awslogs-region: !Ref AWS::Region
           Links:
             - "mysql"
             - "memcached"
@@ -146,6 +151,11 @@ Resources:
               ContainerPath: /opt/drupal_db
           PortMappings:
             - ContainerPort: 3306
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref CloudWatchLogsGroup
+              awslogs-region: !Ref AWS::Region
           Environment:
             - Name: MYSQL_ROOT_PASSWORD
               Value: root_password    
@@ -163,6 +173,11 @@ Resources:
           Memory: 2048
           PortMappings:
             - ContainerPort: 11211
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref CloudWatchLogsGroup
+              awslogs-region: !Ref AWS::Region
       Volumes:
         - 
           Host: 
@@ -172,6 +187,12 @@ Resources:
           Host:
             SourcePath: "/opt/drupal_db"
           Name: drupal-db
+
+  CloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Ref AWS::StackName
+      RetentionInDays: 365
 
   SecurityGroupALB:
     Type: "AWS::EC2::SecurityGroup"
