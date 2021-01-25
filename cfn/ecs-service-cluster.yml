@@ -155,6 +155,8 @@ Resources:
               Value: drupal_database_user
             - Name: MYSQL_PASSWORD
               Value: drupal_database_password
+            - Name: MYSQL_DATABASE_RESTORE_FILE
+              Value: clinique-master.sql
         - Name: memcached
           Image: memcached
           Essential: true
