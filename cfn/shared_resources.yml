@@ -28,8 +28,13 @@ Parameters:
     Type: String
     Default: pdaugavietis
 
-  RepositoryName:
-    Description: Amazon ECR repository name
+  MySQLRepositoryName:
+    Description: Amazon ECR repository name for MySQL image
+    Type: String
+    Default: mysql-ecr-repository
+
+  DrupalRepositoryName:
+    Description: Amazon ECR repository name for ELCO Drupal
     Type: String
     Default: drupal-ecr-repository
 
@@ -364,10 +369,10 @@ Resources:
         SourceSecurityGroupId:
           Ref: PublicHttpIngressSecurityGroup
 
-  ECRRepository: 
+  ECRRepositoryMySQL: 
     Type: AWS::ECR::Repository
     Properties: 
-      RepositoryName: !Sub ${RepositoryName}
+      RepositoryName: !Sub ${MySQLRepositoryName}
       ImageScanningConfiguration: 
         scanOnPush: "true"
       RepositoryPolicyText: 
@@ -392,7 +397,121 @@ Resources:
   ArtifactBucket:
     Type: AWS::S3::Bucket
 
-  CodeBuildProject:
+  CodeBuildProjectMySQL:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - echo Logging in to Amazon ECR...
+                - $(aws ecr get-login --no-include-email --region us-east-1)
+                - echo Logging in to Docker Hub...
+                - docker login --username $DOCKERHUB_USERNAME --password $DOCKERHUB_PASSWORD
+            build:
+              commands:
+                - echo Build started on $(date)
+                - echo Building the Docker image...
+                - docker build -f mysql.Dockerfile -t $IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION .
+                - docker tag $IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION
+                - docker tag $IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
+            post_build:
+              commands:
+                - echo Build completed on $(date)
+                - echo Pushing the Docker image...
+                - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+                - docker push $REPOSITORY_URI:latest
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        Image: "aws/codebuild/docker:1.12.1"
+        Type: "LINUX_CONTAINER"
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId
+          - Name: REPOSITORY_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${MySQLRepositoryName}
+          - Name: IMAGE_REPO_NAME
+            Value: !Ref MySQLRepositoryName
+          - Name: DOCKERHUB_USERNAME
+            Value: !Ref DockerhubUsername
+          - Name: DOCKERHUB_PASSWORD
+            Value: !Ref DockerhubPassword
+      Name: !Sub ${MySQLRepositoryName}-codebuildproject
+      ServiceRole: !Ref CodeBuildServiceRole
+
+  PipelineMySQL:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineServiceRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Dockerfile
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+              OutputArtifacts:
+                - Name: DockerImage
+              RunOrder: 1
+        - Name: BuildImage
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProjectMySQL
+              InputArtifacts:
+                - Name: DockerImage
+              OutputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 1
+
+  ECRRepositoryDrupal:
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: !Sub ${DrupalRepositoryName}
+      ImageScanningConfiguration: 
+        scanOnPush: "true"
+      RepositoryPolicyText: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Sid: AllowPushPull
+            Effect: Allow
+            Principal: 
+              AWS: 
+                - !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: 
+              - "ecr:GetDownloadUrlForLayer"
+              - "ecr:BatchGetImage"
+              - "ecr:BatchCheckLayerAvailability"
+              - "ecr:PutImage"
+              - "ecr:InitiateLayerUpload"
+              - "ecr:UploadLayerPart"
+              - "ecr:CompleteLayerUpload"
+              - "ecr:ListImages"
+
+  CodeBuildProjectDrupal:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
@@ -431,17 +550,17 @@ Resources:
           - Name: AWS_ACCOUNT_ID
             Value: !Ref AWS::AccountId
           - Name: REPOSITORY_URI
-            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${DrupalRepositoryName}
           - Name: IMAGE_REPO_NAME
-            Value: !Ref RepositoryName
+            Value: !Ref DrupalRepositoryName
           - Name: DOCKERHUB_USERNAME
             Value: !Ref DockerhubUsername
           - Name: DOCKERHUB_PASSWORD
             Value: !Ref DockerhubPassword
-      Name: !Sub ${RepositoryName}-codebuildproject
+      Name: !Sub ${DrupalRepositoryName}-codebuildproject
       ServiceRole: !Ref CodeBuildServiceRole
 
-  Pipeline:
+  PipelineDrupal:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       RoleArn: !GetAtt CodePipelineServiceRole.Arn
@@ -474,7 +593,7 @@ Resources:
                 Version: 1
                 Provider: CodeBuild
               Configuration:
-                ProjectName: !Ref CodeBuildProject
+                ProjectName: !Ref CodeBuildProjectDrupal
               InputArtifacts:
                 - Name: DockerImage
               OutputArtifacts:
@@ -515,7 +634,9 @@ Resources:
                   - s3:GetObject
                   - s3:PutObject
                   - s3:GetObjectVersion
-              - Resource: !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${RepositoryName}
+              - Resource:
+                  - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${DrupalRepositoryName}
+                  - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/${MySQLRepositoryName}
                 Effect: Allow
                 Action:
                   - ecr:GetDownloadUrlForLayer
@@ -562,9 +683,13 @@ Resources:
 
 Outputs:
 
-  RepositoryURL:
+  DrupalRepositoryURL:
     Description: A reference to the repository URL
-    Value: !GetAtt ECRRepository.Arn
+    Value: !GetAtt ECRRepositoryDrupal.Arn
+
+  MySQLRepositoryURL:
+    Description: A reference to the repository URL
+    Value: !GetAtt ECRRepositoryMySQL.Arn
 
   WorkshopName:
     Description: The workshop name
