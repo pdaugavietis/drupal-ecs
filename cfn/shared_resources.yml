@@ -417,14 +417,12 @@ Resources:
               commands:
                 - echo Build started on $(date)
                 - echo Building the Docker image...
-                - docker build -f mysql.Dockerfile -t $IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION .
-                - docker tag $IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION
-                - docker tag $IMAGE_REPO_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
+                - docker build -f mysql.Dockerfile -t $IMAGE_REPO_NAME .
+                - docker tag $IMAGE_REPO_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:latest
             post_build:
               commands:
                 - echo Build completed on $(date)
                 - echo Pushing the Docker image...
-                - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
                 - docker push $REPOSITORY_URI:latest
       Environment:
         ComputeType: "BUILD_GENERAL1_SMALL"

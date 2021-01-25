@@ -2,7 +2,11 @@ Description: >
   Create ECS service and cluster resources for Drupal application.
 
 Parameters:
-  RepositoryName:
+  MySQLRepositoryName:
+    Description: Amazon ECR repository name
+    Type: String
+    Default: mysql-ecr-repository
+  DrupalRepositoryName:
     Description: Amazon ECR repository name
     Type: String
     Default: drupal-ecr-repository
@@ -104,7 +108,7 @@ Resources:
       DesiredCount: 1
       TaskDefinition: !Ref TaskDefinition
       LoadBalancers:
-        - ContainerName: !Ref RepositoryName
+        - ContainerName: !Ref DrupalRepositoryName
           ContainerPort: 80
           TargetGroupArn: !Ref TargetGroup
 
@@ -112,8 +116,8 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       ContainerDefinitions:
-        - Name: !Ref RepositoryName
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}"
+        - Name: !Ref DrupalRepositoryName
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${DrupalRepositoryName}"
           Essential: true
           Memory: 4096
           MountPoints:
@@ -134,7 +138,7 @@ Resources:
             - Name: MYSQL_PASSWORD
               Value: drupal_database_password
         - Name: mysql
-          Image: mysql
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${MySQLRepositoryName}"
           Essential: true
           Memory: 4096
           Command:
