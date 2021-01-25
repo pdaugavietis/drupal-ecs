@@ -141,8 +141,6 @@ Resources:
           Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${MySQLRepositoryName}"
           Essential: true
           Memory: 4096
-          Command:
-            - "/bin/sh -c \"while true; do /bin/date > /opt/drupal_db/date; sleep 1; done\""
           MountPoints:
             - SourceVolume: drupal-db
               ContainerPath: /opt/drupal_db
