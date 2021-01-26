@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
+	set -- apache2-foreground "$@"
+fi
+
+if [ -d $ELC_DRUPAL_MOUNT ]; then
+	ln -s $ELC_DRUPAL_MOUNT/drupal-7.9 /var/www/html
+	ln -s $ELC_DRUPAL_MOUNT/test /var/www/html/test
+	chown -R www-data:www-data $ELC_DRUPAL_MOUNT/drupal-7.9
+fi
+
+exec "$@"

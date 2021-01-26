@@ -69,4 +69,7 @@ RUN set -eux; \
 
 RUN echo "Hello World Again Once More" > /hello.txt
 
+COPY ./docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
+RUN chmod a+x /usr/local/bin/docker-php-entrypoint
+
 # vim:set ft=dockerfile:
