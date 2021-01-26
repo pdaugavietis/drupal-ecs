@@ -2,10 +2,18 @@ Description: >
   Create ECS service and cluster resources for Drupal application.
 
 Parameters:
+  ElcDrupalMountPoint:
+    Description: Amazon ECR repository name
+    Type: String
+    Default: /opt/drupal_ref_repo/drupal
   MySQLRepositoryName:
     Description: Amazon ECR repository name
     Type: String
     Default: mysql-ecr-repository
+  ECSVolumeSize:
+    Description: Volume size for container
+    Type: String
+    Default: 80
   DrupalRepositoryName:
     Description: Amazon ECR repository name
     Type: String
@@ -142,6 +150,8 @@ Resources:
               Value: drupal_database_user
             - Name: MYSQL_PASSWORD
               Value: drupal_database_password
+            - Name: ELC_DRUPAL_MOUNT
+              Value: !Ref ElcDrupalMountPoint
         - Name: mysql
           Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${MySQLRepositoryName}"
           Essential: true
@@ -320,7 +330,7 @@ Resources:
       BlockDeviceMappings: 
         - DeviceName: /dev/xvda
           Ebs: 
-            VolumeSize: 30
+            VolumeSize: !Ref ECSVolumeSize
       ImageId: !FindInMap [ AWSRegionToAMI, !Ref "AWS::Region", AMI ]
       KeyName: !Ref KeyName
       InstanceType: !Ref InstanceType
