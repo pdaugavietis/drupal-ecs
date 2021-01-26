@@ -10,6 +10,10 @@ Parameters:
     Description: Amazon ECR repository name
     Type: String
     Default: mysql-ecr-repository
+  MySQLRestoreFilePath:
+    Default: /opt/drupal_db/clinique-master.sql
+    Description: Amazon ECR repository name
+    Type: String
   ECSVolumeSize:
     Description: Volume size for container
     Type: String
@@ -176,7 +180,7 @@ Resources:
             - Name: MYSQL_PASSWORD
               Value: drupal_database_password
             - Name: MYSQL_DATABASE_RESTORE_FILE
-              Value: clinique-master.sql
+              Value: !Ref MySQLRestoreFilePath
         - Name: memcached
           Image: memcached
           Essential: true
