@@ -51,7 +51,7 @@ Parameters:
 Mappings:
   AWSRegionToAMI:
     us-east-1:
-      AMI: ami-0e08aef8f01f2879f
+      AMI: ami-031d394c703b205eb
 
 Resources:
   LoadBalancerListener:
