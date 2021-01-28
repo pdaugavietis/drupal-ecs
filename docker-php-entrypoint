@@ -8,8 +8,8 @@ fi
 
 if [ -d $ELC_DRUPAL_MOUNT ]; then
 	mv /var/www/html /var/www/html.backup
-	ln -s $ELC_DRUPAL_MOUNT/drupal-7.9 /var/www/html
-	ln -s $ELC_DRUPAL_MOUNT/test /var/www/html/test
+	ln -sf $ELC_DRUPAL_MOUNT/drupal-7.9 /var/www/html
+	ln -sf $ELC_DRUPAL_MOUNT/test /var/www/html/test
 	chown -R www-data:www-data var/www/html
 fi
 
