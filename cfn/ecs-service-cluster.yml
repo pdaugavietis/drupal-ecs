@@ -156,6 +156,8 @@ Resources:
               Value: drupal_database_password
             - Name: ELC_DRUPAL_MOUNT
               Value: !Ref ElcDrupalMountPoint
+            - Name: MEMCACHE_SERVERS
+              Value: memcached
         - Name: mysql
           Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${MySQLRepositoryName}"
           Essential: true
