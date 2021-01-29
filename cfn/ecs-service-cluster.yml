@@ -11,7 +11,7 @@ Parameters:
     Type: String
     Default: mysql-ecr-repository
   MySQLRestoreFilePath:
-    Default: /opt/drupal_db/clinique-master.sql
+    Default: /opt/drupal_db/hourly_cl.sql
     Description: Amazon ECR repository name
     Type: String
   ECSVolumeSize:
@@ -21,7 +21,7 @@ Parameters:
   DrupalRepositoryName:
     Description: Amazon ECR repository name
     Type: String
-    Default: drupal-ecr-repository-2
+    Default: drupal-ecr-repository
   RepositoryTag:
     Description: Amazon ECR repository tag name
     Type: String
@@ -51,7 +51,7 @@ Parameters:
 Mappings:
   AWSRegionToAMI:
     us-east-1:
-      AMI: ami-031d394c703b205eb
+      AMI: ami-0366d1c7b2d376cf7
 
 Resources:
   LoadBalancerListener:
