@@ -142,6 +142,7 @@ Resources:
             Options:
               awslogs-group: !Ref CloudWatchLogsGroup
               awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: drupal
           Links:
             - "mysql"
             - "memcached"
@@ -151,15 +152,15 @@ Resources:
             - Name: MYSQL_DATABASE
               Value: drupal       
             - Name: MYSQL_USER
-              Value: drupal_database_user
+              Value: drupal_user
             - Name: MYSQL_PASSWORD
-              Value: drupal_database_password
+              Value: drupal_password
             - Name: ELC_DRUPAL_MOUNT
               Value: !Ref ElcDrupalMountPoint
         - Name: mysql
           Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${MySQLRepositoryName}"
           Essential: true
-          Memory: 4096
+          Memory: 8192
           MountPoints:
             - SourceVolume: drupal-db
               ContainerPath: /opt/drupal_db
@@ -170,15 +171,16 @@ Resources:
             Options:
               awslogs-group: !Ref CloudWatchLogsGroup
               awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: mysql
           Environment:
             - Name: MYSQL_ROOT_PASSWORD
               Value: root_password    
             - Name: MYSQL_DATABASE              
               Value: drupal
             - Name: MYSQL_USER
-              Value: drupal_database_user
+              Value: drupal_user
             - Name: MYSQL_PASSWORD
-              Value: drupal_database_password
+              Value: drupal_password
             - Name: MYSQL_DATABASE_RESTORE_FILE
               Value: !Ref MySQLRestoreFilePath
         - Name: memcached
@@ -192,6 +194,7 @@ Resources:
             Options:
               awslogs-group: !Ref CloudWatchLogsGroup
               awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: memcached
       Volumes:
         - 
           Host: 
