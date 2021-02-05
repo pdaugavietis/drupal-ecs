@@ -67,7 +67,10 @@ RUN set -eux; \
   rm drupal.tar.gz; \
   chown -R www-data:www-data sites modules themes
 
-RUN echo "Hello World Again Once More" > /hello.txt
+COPY apache2/estee.conf /etc/apache2/sites-enabled/001-estee.conf
+
+RUN echo "*               soft    nofile  65536" >> /etc/security/limits.conf \
+    && echo "*               hard    nofile  65536" >> /etc/security/limits.conf
 
 COPY ./docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
 RUN chmod a+x /usr/local/bin/docker-php-entrypoint
