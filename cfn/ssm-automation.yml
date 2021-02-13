@@ -101,8 +101,8 @@ Resources:
                    pip install awscli
                    rm -rf /opt/drupal*
                    mkdir -p /opt/{drupal-db,drupal-ref-repo}
-                   aws s3 cp s3://${ResourceBucketName}/hourly_cl.sql.gz /opt/drupal-db/hourly_cl.sql.gz
-                   aws s3 cp s3://${ResourceBucketName}/elco-drupal.zip /opt/drupal-ref-repo/elco-drupal.zip
+                   aws s3 cp s3://{{ResourceBucketName}}/hourly_cl.sql.gz /opt/drupal-db/hourly_cl.sql.gz
+                   aws s3 cp s3://{{ResourceBucketName}}/elco-drupal.zip /opt/drupal-ref-repo/elco-drupal.zip
                    cd /opt/drupal-ref-repo && unzip elco-drupal.zip && rm -f elco-drupal.zip
                    cd /opt/drupal-db && gzip -d /opt/drupal-db/hourly_cl.sql.gz
                    mysql -uroot -e "create database drupal"
