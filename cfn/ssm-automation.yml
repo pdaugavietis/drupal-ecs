@@ -1,0 +1,219 @@
+#                               .__                   .___ _____                            __  .__               
+#  _____ __  _  ________   ____ |  |   ____  __ __  __| _// ____\___________  _____ _____ _/  |_|__| ____   ____  
+#  \__  \\ \/ \/ /  ___/ _/ ___\|  |  /  _ \|  |  \/ __ |\   __\/  _ \_  __ \/     \\__  \\   __\  |/  _ \ /    \ 
+#   / __ \\     /\___ \  \  \___|  |_(  <_> )  |  / /_/ | |  | (  <_> )  | \/  Y Y  \/ __ \|  | |  (  <_> )   |  \
+#  (____  /\/\_//____  >  \___  >____/\____/|____/\____ | |__|  \____/|__|  |__|_|  (____  /__| |__|\____/|___|  /
+#       \/           \/       \/                       \/                         \/     \/                    \/ 
+
+Description: "Creates SSM Automation document for AMI pipeline to build Drupal feature environment base image"
+
+Parameters:
+  ResourceBucketName:
+    Type: String
+    Default: ""
+  IamInstanceProfileName:
+    Type: String
+    Default: ""
+  SubnetId:
+    Type: String
+    Default: ""
+
+Resources:
+  SSMAssocLogs:
+    Type: AWS::S3::Bucket
+  DrupalImageAutomation:
+    Type: AWS::SSM::Document
+    Properties:
+      DocumentType: Automation
+      Content:
+        schemaVersion: "0.3"
+        description: "SSM Automation document for AMI pipeline to build Drupal feature environment base image"
+        assumeRole: "{{AutomationAssumeRole}}"
+        parameters:
+          ResourceBucketName:
+            description: "Name of the S3 bucket w/ the Drupal source code bundle"
+            type: "String"
+            default: !Ref ResourceBucketName
+          ImageName:
+            description: "AMI name label for version identification"
+            type: "String"
+            default: "drupal-ami-latest"
+          IamInstanceProfileName:
+            description: "Name of Instance Profile for AMI automation process."
+            type: "String"
+            default: !Ref IamInstanceProfileName
+          SubnetId:
+            description: "Subnet to deploy EC2 for AMI automation process"
+            type: "String"
+            default: !Ref SubnetId
+          SourceAmiId:
+            description: "Base image AMI value"
+            type: "String" 
+            default: '{{resolve:ssm:drupal-ami-value:1}}'
+          AutomationAssumeRole:
+            default: ""
+            description: "(Optional) The ARN of the role that allows Automation to perform the actions on your behalf."
+            type: "String" 
+        mainSteps:
+        - name: "launchInstance"
+          action: "aws:runInstances"
+          maxAttempts: 3
+          timeoutSeconds: 1200
+          onFailure: Abort
+          inputs:
+            ImageId: "{{SourceAmiId}}"
+            InstanceType: t3.large
+            UserData: "IyEvYmluL2Jhc2gKCmZ1bmN0aW9uIGdldF9jb250ZW50cygpIHsKICAgIGlmIFsgLXggIiQod2hpY2ggY3VybCkiIF07IHRoZW4KICAgICAgICBjdXJsIC1zIC1mICIkMSIKICAgIGVsaWYgWyAteCAiJCh3aGljaCB3Z2V0KSIgXTsgdGhlbgogICAgICAgIHdnZXQgIiQxIiAtTyAtCiAgICBlbHNlCiAgICAgICAgZGllICJObyBkb3dubG9hZCB1dGlsaXR5IChjdXJsLCB3Z2V0KSIKICAgIGZpCn0KCnJlYWRvbmx5IElERU5USVRZX1VSTD0iaHR0cDovLzE2OS4yNTQuMTY5LjI1NC8yMDE2LTA2LTMwL2R5bmFtaWMvaW5zdGFuY2UtaWRlbnRpdHkvZG9jdW1lbnQvIgpyZWFkb25seSBUUlVFX1JFR0lPTj0kKGdldF9jb250ZW50cyAiJElERU5USVRZX1VSTCIgfCBhd2sgLUZcIiAnL3JlZ2lvbi8geyBwcmludCAkNCB9JykKcmVhZG9ubHkgREVGQVVMVF9SRUdJT049InVzLWVhc3QtMSIKcmVhZG9ubHkgUkVHSU9OPSIke1RSVUVfUkVHSU9OOi0kREVGQVVMVF9SRUdJT059IgoKcmVhZG9ubHkgU0NSSVBUX05BTUU9ImF3cy1pbnN0YWxsLXNzbS1hZ2VudCIKU0NSSVBUX1VSTD0iaHR0cHM6Ly9hd3Mtc3NtLWRvd25sb2Fkcy0kUkVHSU9OLnMzLmFtYXpvbmF3cy5jb20vc2NyaXB0cy8kU0NSSVBUX05BTUUiCgppZiBbICIkUkVHSU9OIiA9PSAidXMtZ292LXdlc3QtMSIgLW8gIiRSRUdJT04iID09ICJ1cy1nb3YtZWFzdC0xIiBdOyB0aGVuCiAgU0NSSVBUX1VSTD0iaHR0cHM6Ly9hd3Mtc3NtLWRvd25sb2Fkcy0kUkVHSU9OLnMzLiRSRUdJT04uYW1hem9uYXdzLmNvbS9zY3JpcHRzLyRTQ1JJUFRfTkFNRSIKZmkKCmNkIC90bXAKRklMRV9TSVpFPTAKTUFYX1JFVFJZX0NPVU5UPTMKUkVUUllfQ09VTlQ9MAoKd2hpbGUgWyAkUkVUUllfQ09VTlQgLWx0ICRNQVhfUkVUUllfQ09VTlQgXSA7IGRvCiAgZWNobyBBV1MtVXBkYXRlTGludXhBbWk6IERvd25sb2FkaW5nIHNjcmlwdCBmcm9tICRTQ1JJUFRfVVJMCiAgZ2V0X2NvbnRlbnRzICIkU0NSSVBUX1VSTCIgPiAiJFNDUklQVF9OQU1FIgogIEZJTEVfU0laRT0kKGR1IC1rIC90bXAvJFNDUklQVF9OQU1FIHwgY3V0IC1mMSkKICBlY2hvIEFXUy1VcGRhdGVMaW51eEFtaTogRmluaXNoZWQgZG93bmxvYWRpbmcgc2NyaXB0LCBzaXplOiAkRklMRV9TSVpFCiAgaWYgWyAkRklMRV9TSVpFIC1ndCAwIF07IHRoZW4KICAgIGJyZWFrCiAgZWxzZQogICAgaWYgW1sgJFJFVFJZX0NPVU5UIC1sdCBNQVhfUkVUUllfQ09VTlQgXV07IHRoZW4KICAgICAgUkVUUllfQ09VTlQ9JCgoUkVUUllfQ09VTlQrMSkpOwogICAgICBlY2hvIEFXUy1VcGRhdGVMaW51eEFtaTogRmlsZVNpemUgaXMgMCwgcmV0cnlDb3VudDogJFJFVFJZX0NPVU5UCiAgICBmaQogIGZpIApkb25lCgppZiBbICRGSUxFX1NJWkUgLWd0IDAgXTsgdGhlbgogIGNobW9kICt4ICIkU0NSSVBUX05BTUUiCiAgZWNobyBBV1MtVXBkYXRlTGludXhBbWk6IFJ1bm5pbmcgVXBkYXRlU1NNQWdlbnQgc2NyaXB0IG5vdyAuLi4uCiAgLi8iJFNDUklQVF9OQU1FIiAtLXJlZ2lvbiAiJFJFR0lPTiIKZWxzZQogIGVjaG8gQVdTLVVwZGF0ZUxpbnV4QW1pOiBVbmFibGUgdG8gZG93bmxvYWQgc2NyaXB0LCBxdWl0dGluZyAuLi4uCmZp"
+            MinInstanceCount: 1
+            MaxInstanceCount: 1
+            IamInstanceProfileName: "{{IamInstanceProfileName}}"
+            SubnetId: "{{ SubnetId }}"
+        - name: "verifySsmInstall"
+          action: "aws:runCommand"
+          maxAttempts: 3
+          timeoutSeconds: 1200
+          onFailure: Abort
+          inputs:
+            DocumentName: "AWS-RunShellScript"
+            InstanceIds:
+            - "{{launchInstance.InstanceIds}}"
+            Parameters:
+              commands:
+                - hostname
+        - name: "installElcoDrupal"
+          action: "aws:runCommand"
+          maxAttempts: 3
+          timeoutSeconds: 1200
+          onFailure: Abort
+          inputs:
+            DocumentName: "AWS-RunShellScript"
+            InstanceIds:
+            - "{{launchInstance.InstanceIds}}"
+            Parameters:
+              commands:
+                - |
+                   #!/bin/bash
+                   set -e
+                   yum install -y git python38 mysql56 mysql56-server unzip
+                   service mysqld start
+                   curl https://bootstrap.pypa.io/get-pip.py -o /root/get-pip.py
+                   python3 /root/get-pip.py
+                   pip install awscli
+                   rm -rf /opt/drupal*
+                   mkdir -p /opt/{drupal-db,drupal-ref-repo}
+                   aws s3 cp s3://{{ResourceBucketName}}/hourly_cl.sql.gz /opt/drupal-db/hourly_cl.sql.gz
+                   aws s3 cp s3://{{ResourceBucketName}}/elco-drupal.zip /opt/drupal-ref-repo/elco-drupal.zip
+                   cd /opt/drupal-ref-repo && unzip elco-drupal.zip && rm -f elco-drupal.zip
+                   cd /opt/drupal-db && gzip -d /opt/drupal-db/hourly_cl.sql.gz
+                   mysql -uroot -e "create database if not exist drupal"
+                   mysql -uroot -e "create user 'drupal_user'@'%' identified by 'drupal_password'"
+                   mysql -uroot -e "grant all privileges on 'drupal'.* to 'drupal_user'@'%'"
+                   mysql -uroot -e "flush privileges"
+                   cd /opt/drupal-db && mysql -u'drupal_user drupal' -p'drupal_password' drupal < hourly_cl.sql 
+
+        - name: "stopInstance"
+          action: "aws:changeInstanceState"
+          maxAttempts: 3
+          timeoutSeconds: 1200
+          onFailure: Abort
+          inputs:
+            InstanceIds:
+            - "{{launchInstance.InstanceIds}}"
+            DesiredState: stopped
+        - name: "createImage"
+          action: "aws:createImage"
+          maxAttempts: 3
+          timeoutSeconds: 1200
+          onFailure: Abort
+          inputs:
+            InstanceId: "{{launchInstance.InstanceIds}}"
+            ImageName: "{{ImageName}}-{{global:DATE_TIME}}"
+            NoReboot: true
+            ImageDescription: "AMI Generated by SSM Automation on {{global:DATE_TIME}} from {{SourceAmiId}}"
+        - name: "terminateInstance"
+          action: "aws:changeInstanceState"
+          maxAttempts: 3
+          onFailure: Continue
+          inputs:
+            InstanceIds:
+            - "{{launchInstance.InstanceIds}}"
+            DesiredState: terminated
+        outputs:
+        - createImage.ImageId
+
+  SSMExecutionRole: 
+    Type : AWS::IAM::Role
+    Properties:
+      Policies:
+        - PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - ssm:StartAssociationsOnce
+                  - ssm:CreateAssociation
+                  - ssm:CreateAssociationBatch
+                  - ssm:UpdateAssociation
+                Resource: '*'
+                Effect: Allow
+          PolicyName: ssm-association
+      Path: /
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonSSMAutomationRole'
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+            - "ec2.amazonaws.com"
+            - "ssm.amazonaws.com"
+          Action: "sts:AssumeRole"
+  SSMInstanceRole: 
+    Type : AWS::IAM::Role
+    Properties:
+      Policies:
+        - PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - s3:GetObject
+                Resource: 
+                  - !Sub 'arn:aws:s3:::aws-ssm-${AWS::Region}/*'
+                  - !Sub 'arn:aws:s3:::aws-windows-downloads-${AWS::Region}/*'
+                  - !Sub 'arn:aws:s3:::amazon-ssm-${AWS::Region}/*'
+                  - !Sub 'arn:aws:s3:::amazon-ssm-packages-${AWS::Region}/*'
+                  - !Sub 'arn:aws:s3:::${AWS::Region}-birdwatcher-prod/*'
+                  - !Sub 'arn:aws:s3:::patch-baseline-snapshot-${AWS::Region}/*'
+                Effect: Allow
+          PolicyName: ssm-custom-s3-policy
+        - PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                  - s3:ListBucket
+                Resource: 
+                  - !Sub 'arn:${AWS::Partition}:s3:::${SSMAssocLogs}/*'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${SSMAssocLogs}'
+                Effect: Allow
+          PolicyName: s3-instance-bucket-policy
+      Path: /
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/CloudWatchAgentServerPolicy'
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+            - "ec2.amazonaws.com"
+            - "ssm.amazonaws.com"
+          Action: "sts:AssumeRole"
+  SSMInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Roles:
+      - !Ref SSMInstanceRole

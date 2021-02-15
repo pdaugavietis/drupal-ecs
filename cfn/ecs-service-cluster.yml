@@ -5,19 +5,19 @@ Parameters:
   ElcDrupalMountPoint:
     Description: Amazon ECR repository name
     Type: String
-    Default: /opt/drupal_ref_repo/drupal
+    Default: /opt/drupal-ref-repo
   MySQLRepositoryName:
     Description: Amazon ECR repository name
     Type: String
     Default: mysql-ecr-repository
-  MySQLRestoreFilePath:
-    Default: /opt/drupal_db/hourly_cl.sql
-    Description: Amazon ECR repository name
+  DrupalAmiId:
+    Description: Custom Drupal base AMI identifier value
     Type: String
+    Default: ami-03c8947ea383f6ad1
   ECSVolumeSize:
     Description: Volume size for container
     Type: String
-    Default: 80
+    Default: 200
   DrupalRepositoryName:
     Description: Amazon ECR repository name
     Type: String
@@ -47,11 +47,6 @@ Parameters:
     Description: Name of the private key for EC2 access via SSH
     Type: String
     Default: key-drupal-ecs
-
-Mappings:
-  AWSRegionToAMI:
-    us-east-1:
-      AMI: ami-0366d1c7b2d376cf7
 
 Resources:
   LoadBalancerListener:
@@ -134,7 +129,7 @@ Resources:
           Memory: 4096
           MountPoints:
             - SourceVolume: drupal-repo
-              ContainerPath: /opt/drupal_ref_repo
+              ContainerPath: /opt/drupal-ref-repo
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:
@@ -163,7 +158,7 @@ Resources:
           Memory: 8192
           MountPoints:
             - SourceVolume: drupal-db
-              ContainerPath: /opt/drupal_db
+              ContainerPath: /var/lib/mysql
           PortMappings:
             - ContainerPort: 3306
           LogConfiguration:
@@ -181,8 +176,6 @@ Resources:
               Value: drupal_user
             - Name: MYSQL_PASSWORD
               Value: drupal_password
-            - Name: MYSQL_DATABASE_RESTORE_FILE
-              Value: !Ref MySQLRestoreFilePath
         - Name: memcached
           Image: memcached
           Essential: true
@@ -198,11 +191,11 @@ Resources:
       Volumes:
         - 
           Host: 
-            SourcePath: "/opt/drupal_ref_repo"
+            SourcePath: "/opt/drupal-ref-repo"
           Name: drupal-repo
         -
           Host:
-            SourcePath: "/opt/drupal_db"
+            SourcePath: "/var/lib/mysql"
           Name: drupal-db
 
   CloudWatchLogsGroup:
@@ -338,7 +331,7 @@ Resources:
         - DeviceName: /dev/xvda
           Ebs: 
             VolumeSize: !Ref ECSVolumeSize
-      ImageId: !FindInMap [ AWSRegionToAMI, !Ref "AWS::Region", AMI ]
+      ImageId: !Ref DrupalAmiId
       KeyName: !Ref KeyName
       InstanceType: !Ref InstanceType
       IamInstanceProfile: !Ref InstanceProfile
