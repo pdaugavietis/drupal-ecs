@@ -5,7 +5,7 @@ Parameters:
   ElcDrupalMountPoint:
     Description: Amazon ECR repository name
     Type: String
-    Default: /opt/drupal-ref-repo/drupal
+    Default: /opt/drupal-ref-repo
   MySQLRepositoryName:
     Description: Amazon ECR repository name
     Type: String
