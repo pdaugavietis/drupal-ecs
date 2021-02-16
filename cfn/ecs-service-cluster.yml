@@ -105,6 +105,7 @@ Resources:
         }
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole
+        - arn:aws:iam::aws:policy/AmazonSSMFullAccess
 
   Service:
     DependsOn: ListenerRule
