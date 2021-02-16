@@ -273,13 +273,13 @@ docker_setup_db() {
 	EOSQL
 
 	# Creates a custom database and user if specified
-	#if [ -n "$MYSQL_DATABASE" ]; then
-	#	mysql_note "Creating database ${MYSQL_DATABASE}"
-	#	docker_process_sql --database=mysql <<<"CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` ;"
-	#	
-	#	mysql_note "Restoring database ${MYSQL_DATABASE} from ${MYSQL_DATABASE_RESTORE_FILE}"
-	#	/usr/bin/mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < "$MYSQL_DATABASE_RESTORE_FILE"
-	#fi
+	if [ -n "$MYSQL_DATABASE" ]; then
+		mysql_note "Creating database ${MYSQL_DATABASE}"
+		docker_process_sql --database=mysql <<<"CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` ;"
+		
+		# mysql_note "Restoring database ${MYSQL_DATABASE} from ${MYSQL_DATABASE_RESTORE_FILE}"
+		# /usr/bin/mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < "$MYSQL_DATABASE_RESTORE_FILE"
+	fi
 
 	if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ]; then
 		mysql_note "Creating user ${MYSQL_USER}"
