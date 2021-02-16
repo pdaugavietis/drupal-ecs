@@ -105,12 +105,17 @@ Resources:
                    aws s3 cp s3://{{ResourceBucketName}}/elco-drupal.zip /opt/drupal-ref-repo/elco-drupal.zip
                    cd /opt/drupal-ref-repo && unzip elco-drupal.zip && rm -f elco-drupal.zip
                    cd /opt/drupal-db && gzip -d /opt/drupal-db/hourly_cl.sql.gz
+<<<<<<< HEAD
                    mysql -uroot -e "create database if not exists drupal"
                    #mysql -uroot -e "drop user 'drupal_user'@'localhost'"
                    #mysql -uroot -e "create user 'drupal_user'@'localhost' identified by 'drupal_password'"
                    #mysql -uroot -e "grant all privileges on 'drupal'.* to 'drupal_user'@'localhost'"
                    #mysql -uroot -e "flush privileges"
                    cd /opt/drupal-db && mysql -uroot drupal < hourly_cl.sql 
+=======
+                   mysql -uroot -e "create database if not exists drupal; create user 'drupal_user'@'%' identified by 'drupal_password'; grant all privileges on 'drupal'.* to 'drupal_user'@'%'; flush privileges"
+                   cd /opt/drupal-db && mysql -u'drupal_user' -p'drupal_password' drupal < hourly_cl.sql 
+>>>>>>> 9339a05c8b2200a7c4977485ee0dfb4877d76a33
 
         - name: "stopInstance"
           action: "aws:changeInstanceState"
