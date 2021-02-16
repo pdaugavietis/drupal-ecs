@@ -105,7 +105,7 @@ Resources:
                    aws s3 cp s3://{{ResourceBucketName}}/elco-drupal.zip /opt/drupal-ref-repo/elco-drupal.zip
                    cd /opt/drupal-ref-repo && unzip elco-drupal.zip && rm -f elco-drupal.zip
                    cd /opt/drupal-db && gzip -d /opt/drupal-db/hourly_cl.sql.gz
-                   mysql -uroot -e "create database if not exists drupal; delete user 'drupal_user'@'%'; flush privileges; create user 'drupal_user'@'%' identified by 'drupal_password'; grant all privileges on 'drupal'.* to 'drupal_user'@'%'; flush privileges"
+                   mysql -uroot -e "create database if not exists drupal; use drupal; delete user 'drupal_user'@'%'; flush privileges; create user 'drupal_user'@'%' identified by 'drupal_password'; grant all privileges on 'drupal'.* to 'drupal_user'@'%'; flush privileges"
                    cd /opt/drupal-db && mysql -u'drupal_user' -p'drupal_password' drupal < hourly_cl.sql 
 
         - name: "stopInstance"
