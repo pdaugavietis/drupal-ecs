@@ -123,17 +123,19 @@ Resources:
                    EOF
                    chmod 755 /root/clone-drupal.sh
                    source /root/clone-drupal.sh
+                   cat > /root/configure-npm.sh <<EOF
+                   #!/bin/bash
+                   set -e
                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
-                   export NVM_DIR="/root/.nvm"
-                   source "$NVM_DIR/nvm.sh"
-                   source "$NVM_DIR/bash_completion"
+                   . ~/.nvm/nvm.sh
                    nvm install 10.15.3 && nvm use 10.15.3
                    cd /opt/drupal-ref-repo/gulp-tasks && npm ci
                    cd /opt/drupal-ref-repo/drupal-7.9/sites/clinique && rm -rf node_modules package-lock.json
                    cd /opt/drupal-ref-repo/drupal-7.9/sites/clinique && npm install --save
                    cd /opt/drupal-ref-repo/drupal-7.9/sites/clinique && npm install gulp-cli bower --save
                    cd /opt/drupal-ref-repo/drupal-7.9/sites/clinique && time npm run deploy
-
+                   EOF
+                   source /root/configure-npm.sh
         - name: "stopInstance"
           action: "aws:changeInstanceState"
           maxAttempts: 3
