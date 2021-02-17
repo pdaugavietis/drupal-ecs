@@ -53,7 +53,7 @@ Resources:
           SourceAmiId:
             description: "Base image AMI value"
             type: "String" 
-            default: '{{resolve:ssm:drupal-ami-value:1}}'
+            default: '{{resolve:ssm:drupal-ami-value:2}}'
           AutomationAssumeRole:
             default: ""
             description: "(Optional) The ARN of the role that allows Automation to perform the actions on your behalf."
@@ -98,7 +98,7 @@ Resources:
                 - |
                    #!/bin/bash
                    set -e
-                   yum install -y git python38 mysql56 mysql56-server unzip
+                   yum install -y git python38 mysql56 mysql56-server unzip @Development
                    service mysqld start
                    curl https://bootstrap.pypa.io/get-pip.py -o /root/get-pip.py
                    python3 /root/get-pip.py
@@ -123,6 +123,11 @@ Resources:
                    EOF
                    chmod 755 /root/clone-drupal.sh
                    source /root/clone-drupal.sh
+                   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+                   export NVM_DIR="/root/.nvm"
+                   source "$NVM_DIR/nvm.sh"
+                   source "$NVM_DIR/bash_completion"
+                   nvm install 10.15.3 && nvm use 10.15.3
                    cd /opt/drupal-ref-repo/gulp-tasks && npm ci
                    cd /opt/drupal-ref-repo/drupal-7.9/sites/clinique && rm -rf node_modules package-lock.json
                    cd /opt/drupal-ref-repo/drupal-7.9/sites/clinique && npm install --save
