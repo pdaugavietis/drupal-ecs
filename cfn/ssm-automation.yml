@@ -137,6 +137,8 @@ Resources:
                    cat <<EOF > /root/configure-npm.sh
                    #!/bin/bash
                    set -e
+                   aws s3 cp s3://avst-estee-poc/settings.php /opt/drupal-ref-repo/drupal-7.9/sites/clinique/settings.php
+                   aws s3 cp s3://avst-estee-poc/settings.feature.php /opt/drupal-ref-repo/drupal-7.9/sites/clinique/settings.feature.php
                    export HOME=/root
                    curl -O https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh
                    /bin/sh install.sh
