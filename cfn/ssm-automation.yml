@@ -121,6 +121,7 @@ Resources:
                    exit 0
                    EOF
                    source /root/clone-drupal.sh
+
         - name: "buildNpmAssets"
           action: "aws:runCommand"
           maxAttempts: 3
@@ -150,7 +151,7 @@ Resources:
                    cd /opt/drupal-ref-repo/drupal-7.9/sites/clinique && time npm run deploy
                    EOF
                    source /root/configure-npm.sh
-                   
+
         - name: "stopInstance"
           action: "aws:changeInstanceState"
           maxAttempts: 3
