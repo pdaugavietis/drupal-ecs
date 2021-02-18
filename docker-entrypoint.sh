@@ -379,10 +379,6 @@ _main() {
 			mysql_note "MySQL init process done. Ready for start up."
 			echo
 		fi
-
-		if [ -n "$FORCE_MYSQL_USER_CREATE" ]; then
-			_mysql_create_user
-		fi
 	fi
 	exec "$@"
 }
@@ -390,4 +386,8 @@ _main() {
 # If we are sourced from elsewhere, don't perform any further actions
 if ! _is_sourced; then
 	_main "$@"
+fi
+
+if [ -n "$FORCE_MYSQL_USER_CREATE" ]; then
+	_mysql_create_user
 fi
