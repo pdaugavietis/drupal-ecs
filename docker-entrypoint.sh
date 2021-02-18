@@ -281,6 +281,10 @@ docker_setup_db() {
 		# /usr/bin/mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" < "$MYSQL_DATABASE_RESTORE_FILE"
 	fi
 
+	_mysql_create_user
+}
+
+_mysql_create_user() {
 	if [ -n "$MYSQL_USER" ] && [ -n "$MYSQL_PASSWORD" ]; then
 		mysql_note "Creating user ${MYSQL_USER}"
 		docker_process_sql --database=mysql <<<"CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' ;"
@@ -374,6 +378,10 @@ _main() {
 			echo
 			mysql_note "MySQL init process done. Ready for start up."
 			echo
+		fi
+
+		if [ -n "$FORCE_MYSQL_USER_CREATE" ]; then
+			_mysql_create_user
 		fi
 	fi
 	exec "$@"

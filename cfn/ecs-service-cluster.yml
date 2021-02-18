@@ -177,6 +177,8 @@ Resources:
               Value: drupal_user
             - Name: MYSQL_PASSWORD
               Value: drupal_password
+            - Name: FORCE_MYSQL_USER_CREATE
+              Value: "true"
         - Name: memcached
           Image: memcached
           Essential: true
