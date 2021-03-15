@@ -6,6 +6,10 @@ Parameters:
     Description: Amazon ECR repository name
     Type: String
     Default: /opt/drupal-ref-repo
+  ElcoDrupalRepoBranch:
+    Description: Drupal branch to checkout
+    Type: String
+    Default: master
   MySQLRepositoryName:
     Description: Amazon ECR repository name
     Type: String
@@ -349,6 +353,7 @@ Resources:
           /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
           curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
           /usr/local/bin/pip install awscli
+          /usr/bin/git checkout -b ${ElcoDrupalRepoBranch}
 
   CustomDNSName:
     Type: AWS::Route53::RecordSetGroup
