@@ -13,7 +13,7 @@ Parameters:
   DrupalAmiId:
     Description: Custom Drupal base AMI identifier value
     Type: String
-    Default: ami-03c8947ea383f6ad1
+    Default: ami-053195316a0a1b236
   ECSVolumeSize:
     Description: Volume size for container
     Type: String
@@ -28,7 +28,7 @@ Parameters:
     Default: latest
   BaseDNSZone:
     Type: String
-    Default: pdaugavietis.staff.adaptavist.com
+    Default: e.clinique.na.ca.clcrr-142-elb3.ncsapreprod.abcd
   Subdomain:
     Description: Subdomain prefix value for URL
     Type: String
@@ -46,7 +46,7 @@ Parameters:
   KeyName:
     Description: Name of the private key for EC2 access via SSH
     Type: String
-    Default: key-drupal-ecs
+    Default: key-elco-drupal
 
 Resources:
   LoadBalancerListener:
@@ -330,7 +330,8 @@ Resources:
                 files:
                   - /etc/cfn/cfn-hup.conf
                   - /etc/cfn/hooks.d/cfn-auto-reloader.conf
-    Properties:      
+    Properties:
+      AssociatePublicIpAddress: true
       BlockDeviceMappings: 
         - DeviceName: /dev/xvda
           Ebs: 

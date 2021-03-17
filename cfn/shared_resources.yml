@@ -46,17 +46,17 @@ Parameters:
   VpcId:
     Description: VPC identifier value for references to ECS application stack
     Type: String
-    Default: ""
+    Default: "vpc-0f4726d28dd537565"
 
   PublicSubnet1:
     Description: Public subnet 1 for ECS application deployment
     Type: String
-    Default: ""
+    Default: "subnet-0704b6ae3f181ec3b,subnet-0a39e54ce44bc9553"
 
   PrivateSubnet1:
     Description: Private subnet 1 for ECS application deployment             
     Type: String
-    Default: ""
+    Default: "subnet-0cc33cef21e41dc18,subnet-08ee86a5cf977d332"
 
 Resources:
 
