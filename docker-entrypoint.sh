@@ -381,12 +381,13 @@ _main() {
 			echo
 		fi
 
-		if [ -n "$FORCE_MYSQL_USER_CREATE" ]; then
-			_mysql_create_user
-		fi
 	fi
 	exec "$@"
 }
+
+if [ -n "$FORCE_MYSQL_USER_CREATE" ]; then
+	_mysql_create_user
+fi
 
 # If we are sourced from elsewhere, don't perform any further actions
 if ! _is_sourced; then
