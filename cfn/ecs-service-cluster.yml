@@ -28,18 +28,18 @@ Parameters:
     Default: latest
   BaseDNSZone:
     Type: String
-    Default: e.clinique.na.ca.clcrr-142-elb3.ncsapreprod.abcd
+    Default: feature.elco.cloud
   Subdomain:
     Description: Subdomain prefix value for URL
     Type: String
-    Default: e.clinique.na.ca.clcrr-142-elb3.ncsapreprod
+    Default: e.clinique.na.ca.clcrr-142-elb3.ncsapreprod.abcd
   SharedResourceStack:
     Description: Name of an active CloudFormation stack that contains the shared solution resources, such as the VPC.
     Type: String
     MinLength: 1
     MaxLength: 255
     AllowedPattern: "^[a-zA-Z][-a-zA-Z0-9]*$"
-    Default: drupal-ecs-shared
+    Default: CFN-POC-Shared-Services
   InstanceType:
     Type: String
     Default: t2.xlarge
