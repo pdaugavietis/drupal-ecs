@@ -280,7 +280,7 @@ Resources:
     Properties:
       VPCZoneIdentifier:
         - Fn::ImportValue:
-            !Sub "${SharedResourceStack}:PublicSubnets"
+            !Sub "${SharedResourceStack}:PrivateSubnets"
       LaunchConfigurationName: !Ref LaunchConfiguration
       MinSize: 0
       MaxSize: 4
