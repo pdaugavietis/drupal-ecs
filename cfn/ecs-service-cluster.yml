@@ -56,11 +56,11 @@ Resources:
   MyCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: feature.elco.cloud
+      DomainName: !Join ['.', [!Ref Subdomain, !Ref BaseDNSZone]]
       ValidationMethod: DNS
       DomainValidationOptions:
-         DomainName: !Sub '${Subdomain}.${BaseDNSZone}'
-         HostedZoneId: !Ref BaseDNSZoneId
+        - DomainName: !Join ['.', [!Ref Subdomain, !Ref BaseDNSZone]]
+        - HostedZoneId: !Ref BaseDNSZoneId
 
   LoadBalancerListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
