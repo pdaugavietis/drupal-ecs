@@ -140,7 +140,7 @@ Resources:
   PublicHttpIngressSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: "public-http-ingress-sg"
+      GroupName: !Sub "public-http-ingress-sg-${GitHubBranch}"
       GroupDescription: "Security group that allows HTTP ingress from internet"
       VpcId: !Ref VpcId
       SecurityGroupIngress:
@@ -152,7 +152,7 @@ Resources:
   PrivateHttpIngressSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: "private-http-ingress-sg"
+      GroupName: !Sub "private-http-ingress-sg-${GitHubBranch}"
       GroupDescription: "Security group that allows HTTP ingress from load balancer"
       VpcId: !Ref VpcId
       SecurityGroupIngress:
