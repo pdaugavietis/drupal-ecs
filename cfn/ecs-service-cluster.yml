@@ -32,7 +32,7 @@ Parameters:
   Subdomain:
     Description: Subdomain prefix value for URL
     Type: String
-    Default: e.clinique.na.ca.clcrr-142-elb3.ncsapreprod.abcd
+    Default: e.clinique.na.ca.ncsapreprod.abcd
   SharedResourceStack:
     Description: Name of an active CloudFormation stack that contains the shared solution resources, such as the VPC.
     Type: String
