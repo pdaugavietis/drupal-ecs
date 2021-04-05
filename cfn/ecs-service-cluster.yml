@@ -26,6 +26,9 @@ Parameters:
     Description: Amazon ECR repository tag name
     Type: String
     Default: latest
+  BaseDNSZoneId:
+    Type: String
+    Default: ''
   BaseDNSZone:
     Type: String
     Default: feature.elco.cloud
@@ -47,12 +50,17 @@ Parameters:
     Description: Name of the private key for EC2 access via SSH
     Type: String
     Default: key-elco-drupal
-  CertificateARN:
-    Description: The ARN for the SSL certificate
-    Type: String
-    Default: 'arn:aws:acm:us-east-1:488200604072:certificate/91c6faa6-e28d-47ee-8816-1b7350fd82fa'
 
 Resources:
+  
+  MyCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: feature.elco.cloud
+      ValidationMethod: DNS
+      DomainValidationOptions:
+         DomainName: !Sub '${Subdomain}.${BaseDNSZone}'
+         HostedZoneId: !Ref BaseDNSZoneId
 
   LoadBalancerListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -82,7 +90,7 @@ Resources:
       Port: 443
       Protocol: HTTPS
       Certificates:
-        - CertificateArn: !Ref CertificateARN
+        - CertificateArn: !Ref MyCertificate
 
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
