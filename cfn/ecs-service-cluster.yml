@@ -59,8 +59,8 @@ Resources:
       DomainName: !Join ['.', [!Ref Subdomain, !Ref BaseDNSZone]]
       ValidationMethod: DNS
       DomainValidationOptions:
-        - DomainName: !Join ['.', [!Ref Subdomain, !Ref BaseDNSZone]]
-        - HostedZoneId: !Ref BaseDNSZoneId
+       - DomainName: !Join ['.', [!Ref Subdomain, !Ref BaseDNSZone]]
+         HostedZoneId: !Ref BaseDNSZoneId
 
   LoadBalancerListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
